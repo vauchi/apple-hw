@@ -12,11 +12,22 @@ renders everything the user sees.
 
 It serves the iOS and macOS apps.
 
-## Contents (planned)
+## Contents
 
-- one port per hardware capability: BLE, NFC, camera, audio, direct send
-- contract tests against Core's command/event fixtures, run on a fake OS
-  backend in CI
+- `AppleHardware`: takes a contract `Command`, runs it when one of its
+  ports takes it and reports through `onEvent`; any other command is
+  unsupported and reports nothing
+- the location port: one CoreLocation fix per `LocationRequest`
+- `contract:replay` in CI: each port runs against a fake OS backend, and
+  every command and event passes the contract's schema
+
+It depends on the [contract](https://gitlab.com/vauchi/contract) package
+at the tag Core pins, not on Core.
+
+## Planned
+
+- one port per remaining hardware capability: BLE, NFC, camera, audio,
+  direct send, notifications and wakeups
 - real-device tests, a capability probe, measurement tools and
   diagnostics
 
