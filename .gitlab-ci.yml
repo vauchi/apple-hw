@@ -4,8 +4,8 @@
 
 # GitLab CI for vauchi-apple-hw, the hardware shell (ADR-077).
 #
-# Docs and licensing gates only, from the shared templates; build and
-# test jobs arrive with the first port.
+# Docs and licensing gates from the shared templates, and the Swift
+# package's build and tests on the macOS runners.
 
 workflow:
   auto_cancel:
@@ -39,6 +39,39 @@ variables:
 
 stages:
   - lint
+  - build
+  - test
+
+# Compiles for both SDKs; nothing runs, so no simulator boots.
+build:swift:
+  stage: build
+  tags: [macos-host, self-hosted]
+  parallel:
+    matrix:
+      - SDK: macosx
+        TRIPLE: arm64-apple-macosx14.0
+      - SDK: iphonesimulator
+        TRIPLE: arm64-apple-ios15.0-simulator
+  script:
+    - build_sdk=$(xcrun --sdk "$SDK" --show-sdk-path)
+    - swift build --sdk "$build_sdk" --triple "$TRIPLE" --scratch-path ".build/$SDK"
+  timeout: 10m
+
+# ADR-077 D-7: each port runs against a fake OS backend, and every command
+# it takes and event it reports passes the contract's schema
+# (VauchiContract's ContractJSON).
+contract:replay:
+  stage: test
+  needs: []
+  tags: [macos-tart, self-hosted]
+  image: vauchi-macos-ci-tools
+  variables:
+    TART_EXECUTOR_ALWAYS_PULL: "false"
+  script:
+    - swiftformat . --lint
+    - swiftlint lint --strict --quiet
+    - swift test --scratch-path .build/tests
+  timeout: 10m
 
 github-mirror:
   extends: .github-mirror

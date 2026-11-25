@@ -117,7 +117,8 @@ final class LocationRequestTests: XCTestCase {
     }
 
     func test_a_command_without_a_port_here_is_unsupported_and_reports_nothing() throws {
-        let handled = try hardware.execute(command(#"{"BleDisconnect":{"device_id":"opaque.peer","direction":"Outbound"}}"#))
+        let disconnect = #"{"BleDisconnect":{"device_id":"opaque.peer","direction":"Outbound"}}"#
+        let handled = try hardware.execute(command(disconnect))
 
         XCTAssertFalse(handled)
         XCTAssertTrue(reported.isEmpty)

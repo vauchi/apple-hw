@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+excluded:
+  - .build
+
+disabled_rules:
+  # SwiftFormat adds trailing commas to multi-line literals; as in ios and
+  # contract, it decides.
+  - trailing_comma

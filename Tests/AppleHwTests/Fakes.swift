@@ -74,5 +74,8 @@ func command(_ json: String) throws -> Command {
 func wire(_ event: Event) throws -> NSDictionary {
     let data = try ContractJSON.encodeEvent(event)
     _ = try ContractJSON.decodeEvent(data)
-    return try JSONSerialization.jsonObject(with: data) as! NSDictionary
+    guard let object = try JSONSerialization.jsonObject(with: data) as? NSDictionary else {
+        throw ContractJSONError.invalid("an event encodes as a JSON object")
+    }
+    return object
 }
